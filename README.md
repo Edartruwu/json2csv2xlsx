@@ -1,4 +1,4 @@
-# Turn your json into a csv or a xslx easyly with this go API
+# Turn your json into a csv or a xlsx easyly with this go API
 
 ### This is meant to return a download link, but you can modify it as you want
 
