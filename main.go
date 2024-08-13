@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/rs/cors"
 	"github.com/tealeg/xlsx"
 )
 
@@ -24,11 +25,9 @@ func generateCSV(data []map[string]interface{}) ([]byte, error) {
 		return nil, fmt.Errorf("no data provided")
 	}
 
-	// Create a buffer to hold the CSV data
 	var buf bytes.Buffer
 	writer := csv.NewWriter(&buf)
 
-	// Determine the headers to generate the .CSV
 	headers := make([]string, 0)
 	for key := range data[0] {
 		headers = append(headers, key)
@@ -37,7 +36,6 @@ func generateCSV(data []map[string]interface{}) ([]byte, error) {
 		return nil, err
 	}
 
-	// Write data rows
 	for _, record := range data {
 		recordValues := make([]string, len(headers))
 		for i, header := range headers {
@@ -170,7 +168,16 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	http.HandleFunc("/", handleRequest)
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", handleRequest)
+
+	c := cors.New(cors.Options{
+		AllowedOrigins: []string{"*"},
+		AllowedMethods: []string{"GET", "POST"},
+		AllowedHeaders: []string{"Content-Type"},
+	})
+
+	handler := c.Handler(mux)
 	log.Println("Server listening on port 3000")
-	log.Fatal(http.ListenAndServe(":3000", nil))
+	log.Fatal(http.ListenAndServe(":3000", handler))
 }
